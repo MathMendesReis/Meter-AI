@@ -1,8 +1,13 @@
 import { Module } from '@nestjs/common';
-import { UploadImageController } from './controller/uploadImage.controller';
+import { UploadImageController } from './controller/uploadController';
+import { GeminiService } from 'src/domain/gemini/application/use-case/GeminiService';
+import { DatabaseModule } from '../database/prisma/database.module';
+import { PacthConfirmController } from './controller/PathConfirmController';
+import { ListById } from './controller/ListById';
 
 @Module({
-  controllers: [UploadImageController],
-  providers: [],
+  imports: [DatabaseModule],
+  controllers: [UploadImageController, PacthConfirmController, ListById],
+  providers: [GeminiService],
 })
 export class HttpModule {}
