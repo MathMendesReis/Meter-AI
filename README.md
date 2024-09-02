@@ -28,9 +28,4 @@ obter a medição através da foto de um medidor.
 
 
 
-## Licença
-
-Este código está licenciado usando a
-[licença MIT](./LICENSE).
-
 
