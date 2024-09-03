@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { MeasurePrismaRepositorie } from 'src/infra/database/prisma/repositories/MeasurePrisma';
 import { ConfirmRequestDTO } from 'src/infra/dto/confirm-request-dto';
+import { IMeasurePrismaRepositorie } from '../repositories/measure-repositorie';
 
 @Injectable()
 export class ConfirmedValeuMeasureUseCase {
   constructor(
-    private readonly measurePrismaRepositorie: MeasurePrismaRepositorie,
+    private readonly measurePrismaRepositorie: IMeasurePrismaRepositorie,
   ) {}
   async execute(body: ConfirmRequestDTO): Promise<
     | {

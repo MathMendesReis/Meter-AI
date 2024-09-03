@@ -1,14 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { GeminiService } from 'src/domain/gemini/application/use-case/GeminiService';
 import { MeasureModel } from 'src/domain/gemini/enterprise/MeasureModel';
-import { MeasurePrismaRepositorie } from 'src/infra/database/prisma/repositories/MeasurePrisma';
 import { FileDTO } from 'src/infra/dto/upload-request.dto';
+import { IMeasurePrismaRepositorie } from '../repositories/measure-repositorie';
 
 @Injectable()
 export class UploadImageUseCase {
   constructor(
     private readonly service: GeminiService,
-    private readonly measurePrismaRepositorie: MeasurePrismaRepositorie,
+    private readonly measurePrismaRepositorie: IMeasurePrismaRepositorie,
   ) {}
   async execute(file: Express.Multer.File, body: FileDTO) {
     const year = body.measure_datetime.split('-')[0];

@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { MeasurePrismaRepositorie } from 'src/infra/database/prisma/repositories/MeasurePrisma';
+import { IMeasurePrismaRepositorie } from '../repositories/measure-repositorie';
 @Injectable()
 export class ListMeasureByCustomerIdUseCase {
   constructor(
-    private readonly measurePrismaRepositorie: MeasurePrismaRepositorie,
+    private readonly measurePrismaRepositorie: IMeasurePrismaRepositorie,
   ) {}
 
   async execute(id: string) {
