@@ -1,19 +1,14 @@
-import {
-  Body,
-  Controller,
-  HttpException,
-  HttpStatus,
-  Patch,
-} from '@nestjs/common';
+import { Body, Controller, HttpStatus, Patch, Res } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { ConfirmRequestDTO } from 'src/infra/dto/confirm-request-dto';
-import { MeasurePrismaRepositorie } from 'src/infra/database/prisma/repositories/MeasurePrisma';
+import { ConfirmedValeuMeasureUseCase } from 'src/domain/measure/application/use-case/confirmed-valeu-measure-use-case';
+import { Response } from 'express';
 
 @ApiTags('measure')
 @Controller()
 export class ConfirmedValueMeasureController {
   constructor(
-    private readonly measurePrismaRepositorie: MeasurePrismaRepositorie,
+    private readonly confirmedValeuMeasureUseCase: ConfirmedValeuMeasureUseCase,
   ) {}
   @Patch('confirm')
   @ApiBody({
@@ -33,23 +28,8 @@ export class ConfirmedValueMeasureController {
       },
     },
   })
-  async handle(@Body() body: ConfirmRequestDTO) {
-    const measurementExists =
-      await this.measurePrismaRepositorie.findUniqueById(body.measure_uuid);
-    if (!measurementExists) {
-      throw new HttpException('MEASURE_NOT_FOUND', HttpStatus.NOT_FOUND);
-    }
-    if (measurementExists.hasConfirmed === true) {
-      throw new HttpException('CONFIRMATION_DUPLICATE', HttpStatus.CONFLICT);
-    }
-
-    await this.measurePrismaRepositorie.updateMeasureHasConfirmedToTrue(
-      measurementExists.id,
-      body.confirmed_value === 0 ? true : false,
-    );
-
-    return {
-      success: true,
-    };
+  async handle(@Res() res: Response, @Body() body: ConfirmRequestDTO) {
+    await this.confirmedValeuMeasureUseCase.execute(body);
+    return res.status(HttpStatus.CREATED).send({ sucess: true });
   }
 }
