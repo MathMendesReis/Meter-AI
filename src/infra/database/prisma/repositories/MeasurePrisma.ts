@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { $Enums, Measure } from '@prisma/client';
 import { PrismaService } from '../PrismaService';
 import { MeasureModel } from 'src/domain/gemini/enterprise/MeasureModel';
+import { IMeasurePrismaRepositorie } from 'src/domain/measure/application/repositories/measure-repositorie';
 
 @Injectable()
-export class MeasurePrismaRepositorie {
+export class MeasurePrismaRepositorie implements IMeasurePrismaRepositorie {
   constructor(private prisma: PrismaService) {}
   async createCustomer(body: MeasureModel): Promise<Measure> {
     return await this.prisma.measure.create({
@@ -50,7 +51,7 @@ export class MeasurePrismaRepositorie {
     });
   }
 
-  async findAll(customerId: string) {
+  async findAll(customerId: string): Promise<Measure[]> {
     return this.prisma.measure.findMany({
       where: {
         customerId,
