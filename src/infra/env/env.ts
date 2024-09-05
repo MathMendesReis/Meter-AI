@@ -5,4 +5,8 @@ export const env = {
     KEY: process.env.GEMINI_API_KEY || '',
     GEMINI: process.env.GEMINI || 'gemini-1.5-flash',
   },
+  SUPABASE: {
+    SUPABASE_KEY: process.env.SUPABASE_KEY,
+    SUPABASE_URL: process.env.SUPABASE_URL,
+  },
 };

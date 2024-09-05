@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  FileTypeValidator,
   HttpStatus,
+  ParseFilePipe,
   Post,
   Res,
   UploadedFile,
@@ -54,7 +56,16 @@ export class UploadImageController {
   )
   async handle(
     @Res() res: Response,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({
+            fileType: '.(png|jpg|jpeg|pdf)',
+          }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
     @Body() body: FileDTO,
   ) {
     const result = await this.uploadImageUseCase.execute(file, body);
