@@ -22,9 +22,13 @@ export class MeasurePrismaRepositorie implements IMeasurePrismaRepositorie {
     });
   }
 
-  async findUnique(monthYear: string): Promise<Measure | null> {
+  async findUnique(
+    monthYear: string,
+    customerId: string,
+  ): Promise<Measure | null> {
     return await this.prisma.measure.findFirst({
       where: {
+        customerId,
         monthYear,
       },
     });
@@ -51,10 +55,14 @@ export class MeasurePrismaRepositorie implements IMeasurePrismaRepositorie {
     });
   }
 
-  async findAll(customerId: string): Promise<Measure[]> {
+  async findAll(
+    customerId: string,
+    measureType?: 'GAS' | 'WATER',
+  ): Promise<Measure[]> {
     return this.prisma.measure.findMany({
       where: {
-        customerId,
+        customerId: customerId,
+        measureType: measureType,
       },
     });
   }
