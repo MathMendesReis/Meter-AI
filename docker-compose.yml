@@ -14,6 +14,7 @@ services:
       - postgres
     ports:
       - 3000:3000
+      - 5555:5555
     volumes:
       - .:/usr/src/app
     working_dir: '/usr/src/app'
