@@ -2,7 +2,7 @@
 # 🌊 MeterAI 🌊
 
 Este repositório contém o backend de um aplicativo projetado para gerenciar a leitura individualizada de
-consumo de água e gás. Ele fornece APIs essenciais para a coletar informações de consumo, para facilitar a coleta da informação, o serviço utilizará IA para
+consumo de água e gás. Ele fornece APIs essenciais para a coletar informações de consumo, para facilitar a coleta da informação, o serviço utiliza IA para
 obter a medição através da foto de um medidor.
 
 
