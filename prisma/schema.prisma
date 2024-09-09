@@ -26,5 +26,13 @@ model Measure{
   measureType     MeasureType @default(WATER) @map("measure_type")
   hasConfirmed Boolean @default(false) @map("has_confirmed")
   measureValue String @map("measure_value")
-  monthYear    String   @unique
+  monthYear    String   
 }
+model Image{
+  id    String  @id @default(uuid())
+  fileName String
+  contentLength String
+  contentType String
+  url String
+}
+
