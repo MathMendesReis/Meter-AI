@@ -3,27 +3,30 @@ import { GeminiService } from 'src/domain/gemini/application/use-case/GeminiServ
 import { MeasureModel } from 'src/domain/gemini/enterprise/MeasureModel';
 import { FileDTO } from 'src/infra/dto/upload-request.dto';
 import { IMeasurePrismaRepositorie } from '../repositories/measure-repositorie';
-import { createClient } from '@supabase/supabase-js';
-import { env } from 'src/infra/env/env';
-
+import { ImageRepositorie } from '../repositories/image-repositorie';
+import { ImageModel } from 'src/domain/gemini/enterprise/ImageModel';
 @Injectable()
 export class UploadImageUseCase {
   constructor(
     private readonly service: GeminiService,
     private readonly measurePrismaRepositorie: IMeasurePrismaRepositorie,
+    private readonly imageRepositorie: ImageRepositorie,
   ) {}
-  async execute(file: Express.Multer.File, body: FileDTO) {
-    const supabaseURL = env.SUPABASE.SUPABASE_URL;
-    const supabaseKEY = env.SUPABASE.SUPABASE_KEY;
-
+  async execute(
+    file: Express.Multer.File,
+    body: FileDTO,
+    protocol: string,
+    host: string,
+  ) {
     const year = body.measure_datetime.split('-')[0];
     const month = body.measure_datetime.split('-')[1];
     const day = body.measure_datetime.split('-')[2];
     const date = new Date(`${year}-${month}-${day}`);
     const monthYear = date.toISOString().slice(0, 7);
-    const isMeasureExists =
-      await this.measurePrismaRepositorie.findUnique(monthYear);
-
+    const isMeasureExists = await this.measurePrismaRepositorie.findUnique(
+      monthYear,
+      body.customer_code,
+    );
     if (isMeasureExists) {
       throw new HttpException(
         'Leitura do mês já realizada',
@@ -33,24 +36,21 @@ export class UploadImageUseCase {
 
     const analizToImage = await this.service.uploadImage(file);
 
-    const supabase = createClient(supabaseURL, supabaseKEY, {
-      auth: {
-        persistSession: false,
-      },
+    const newImage = new ImageModel();
+    newImage.setFilename(file.filename);
+    newImage.setContentLength(file.size.toString());
+    newImage.setContentType(file.mimetype);
+    newImage.setUrl(`${protocol}://${host}/files/${file.filename}`);
+
+    const imageDB = await this.imageRepositorie.save({
+      contentLength: newImage.getContentLength(),
+      contentType: newImage.getContentType(),
+      fileName: newImage.getFilename(),
+      url: newImage.getUrl(),
     });
 
-    const {
-      data: { path },
-    } = await supabase.storage
-      .from('MeterAI')
-      .upload(file.originalname, file.buffer, {
-        upsert: true,
-      });
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from('MeterAI').getPublicUrl(path);
     const newMeasure = new MeasureModel(
-      publicUrl,
+      imageDB.url,
       body.customer_code,
       body.measure_type,
       String(analizToImage),
