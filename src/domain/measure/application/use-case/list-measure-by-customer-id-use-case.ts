@@ -6,12 +6,16 @@ export class ListMeasureByCustomerIdUseCase {
     private readonly measurePrismaRepositorie: IMeasurePrismaRepositorie,
   ) {}
 
-  async execute(id: string) {
-    const findAll = await this.measurePrismaRepositorie.findAll(id);
+  async execute(customer_code: string, measure_type?: string) {
+    const measureType = this.validateMeasureType(measure_type);
+    const findAll = await this.measurePrismaRepositorie.findAll(
+      customer_code,
+      measureType,
+    );
     this.measureNotFound(findAll);
     const transformedData = this.transformedData(findAll);
     return {
-      customer_code: id,
+      customer_code: findAll[0].customerId,
       measures: transformedData,
     };
   }
@@ -36,5 +40,22 @@ export class ListMeasureByCustomerIdUseCase {
       has_confirmed: item.hasConfirmed,
       image_url: item.image,
     }));
+  }
+
+  private validateMeasureType(measure_type?: string) {
+    if (measure_type !== undefined) {
+      const validTypes = ['water', 'gas'];
+      if (!validTypes.includes(measure_type.toLowerCase())) {
+        throw new HttpException(
+          {
+            error_code: 'INVALID_TYPE',
+            error_description: 'Tipo de medição não permitida',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      return measure_type.toUpperCase();
+    }
   }
 }
