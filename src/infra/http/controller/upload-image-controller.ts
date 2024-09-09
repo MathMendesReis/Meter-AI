@@ -1,10 +1,9 @@
 import {
   Body,
   Controller,
-  FileTypeValidator,
   HttpStatus,
-  ParseFilePipe,
   Post,
+  Req,
   Res,
   UploadedFile,
   UseInterceptors,
@@ -14,8 +13,12 @@ import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileDTO } from 'src/infra/dto/upload-request.dto';
 import { UploadImageUseCase } from 'src/domain/measure/application/use-case/upload-image-use-case';
 import { Response } from 'express';
-@ApiTags('Gemini')
-@Controller('gemini')
+import { Request } from 'express';
+import multerConfig from 'src/infra/utils/multer-config';
+import parseFilePipe from 'src/infra/utils/parse-file-pipe';
+
+@ApiTags('measure')
+@Controller('save')
 export class UploadImageController {
   constructor(private readonly uploadImageUseCase: UploadImageUseCase) {}
 
@@ -43,32 +46,26 @@ export class UploadImageController {
         file: {
           type: 'string',
           format: 'binary',
-          description: 'Binary file',
+          description: 'image',
         },
       },
     },
   })
-  @Post('upload')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      dest: './uploads',
-    }),
-  )
+  @Post()
+  @UseInterceptors(FileInterceptor('file', multerConfig))
   async handle(
     @Res() res: Response,
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new FileTypeValidator({
-            fileType: '.(png|jpg|jpeg|pdf)',
-          }),
-        ],
-      }),
-    )
+    @Req() req: Request,
+    @UploadedFile(parseFilePipe)
     file: Express.Multer.File,
     @Body() body: FileDTO,
   ) {
-    const result = await this.uploadImageUseCase.execute(file, body);
+    const result = await this.uploadImageUseCase.execute(
+      file,
+      body,
+      req.protocol,
+      req.get('host'),
+    );
     return res.status(HttpStatus.CREATED).send(result);
   }
 }
