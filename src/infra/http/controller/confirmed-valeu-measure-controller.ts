@@ -10,7 +10,7 @@ export class ConfirmedValueMeasureController {
   constructor(
     private readonly confirmedValeuMeasureUseCase: ConfirmedValeuMeasureUseCase,
   ) {}
-  @Patch('confirm')
+  @Patch('confirm-value')
   @ApiBody({
     schema: {
       type: 'object',
